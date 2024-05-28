@@ -1,12 +1,15 @@
+uiClass = require 'InterfaceClass' -- Allow files to make ui / user interface.
 require 'CollisionChecker' --Allow files to use the Check collision function
 local PlayerMouse = require 'MouseFile'
 
 local StateFunctions = require 'StateManager' -- State functions from state manager file
-local ChangeState = StateFunctions[1]
-local StateLoad = StateFunctions[2]
-local StateUpdate = StateFunctions[3]
-local StateDraw = StateFunctions[4]
+local ChangeState = StateFunctions.ChangeState
+local StateLoad = StateFunctions.StateLoad
+local StateUpdate = StateFunctions.StateUpdate
+local StateDraw = StateFunctions.StateDraw
 
+
+--Load, Update, Draw, State
 
 function love.load()
 	StateLoad()

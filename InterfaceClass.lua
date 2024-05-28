@@ -26,8 +26,7 @@ Interface.use = function(self)
 end
 
 Interface.draw = function(self)
-	love.graphics.rectangle(self.mode, self.x, self.y, self.width, self.height)
-	love.graphics.print(self.Information, self.x + self.offsetX, self.y + self.offsetY)
+
 end
 
 return Interface

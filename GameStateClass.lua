@@ -1,12 +1,11 @@
 local GameState = {}
 GameState.__index = GameState
 
-GameState.new = function(self,mode)
+GameState.new = function(self,name)
 	local self = {}
-	self.mode = mode
 	self.Run = false
 
-
+	self.name = name
 	return setmetatable(self,GameState)
 end
 

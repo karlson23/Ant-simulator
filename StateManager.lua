@@ -1,5 +1,18 @@
---Require UI Class
-local uiClass = require 'InterfaceClass'
+--Require MINIGAME table from MINIGAMETABLE.lua file // where all the minigames are held
+local MiniGameTable = require 'MINIGAMETABLE'
+
+--Player health
+local Health = 3
+local DeathNumber = 0 --number where game ends.
+local HealthLimit = 4 --Limit of Health player can have
+local SubtractHealth = 1 --Amount to remove player health.
+
+--mini game timer
+local Timer = 6
+local LastTimer = Timer -- number of timer used for resetting the timer
+local TimerLimit = 0 --number when timer ends.
+local SubtractTimer = 1 -- Amount to remove from timer.
+
 
 --Require Interface Table // to put all interface made here into the interface table.
 local InterfaceTable = require 'InterfaceTable'
@@ -8,14 +21,13 @@ local TitleScreenUItable = {} -- Table where all ui made for title screen is hel
 local PlayerMouse = require 'MouseFile'
 
 --Table where the state functions are hold.
-local functionTable = {}
 
 --GameState.
 local GameStateObject = require 'GameStateClass'
 
-local TitleScreen = GameStateObject:new()
+local TitleScreen = GameStateObject:new('TitleScreen')
 
-local RunState = GameStateObject:new()
+local RunState = GameStateObject:new('RunState')
 
 --The Active state
 local ActiveState = TitleScreen
@@ -24,37 +36,42 @@ local ActiveState = TitleScreen
 --TitleScreen Functions
 --Put the functions inside the load, update, draw, of the run states that is responsible for running them.
 
+
 TitleScreen.load = function()
-    local StartUI = uiClass:new({
-        mode = 'line',
 
-        x = 10,
-        y = 10,
+end
+--Dont put this in Title screen load because a new start ui will be made everytime titlescreen load gets called
+--Start ui for the title screen
+local StartUI = uiClass:new({
+    mode = 'line',
 
-        offsetX = 0,
-        offsetY = 0,
+    x = 10,
+    y = 10,
 
-        width = 25,
-        height = 25,
+    offsetX = 10,
+    offsetY = 5,
 
-        Information = 'Start'
-    })
+    width = 50,
+    height = 25,
 
-    StartUI.use =  function()
-        ActiveState = RunState
-    end
-    
-    table.insert(TitleScreenUItable, StartUI)
+    Information = 'Start'
+})
+
+
+StartUI.use =  function()
+    ActiveState = RunState
 end
 
+StartUI.draw = function()
+    love.graphics.rectangle(StartUI.mode, StartUI.x, StartUI.y, StartUI.width, StartUI.height)
+    love.graphics.print(StartUI.Information, StartUI.x + StartUI.offsetX, StartUI.y + StartUI.offsetY)
+end
+
+table.insert(TitleScreenUItable, StartUI)
+
+
 TitleScreen.update =  function()
-    for ui_index, ui in ipairs(TitleScreenUItable) do
-        if CheckCollision(ui.x, ui.y, ui.width, ui.height, PlayerMouse.x, PlayerMouse.y, PlayerMouse.width, PlayerMouse.height) then
-            if ui.use then
-                ui:use()
-            end
-        end
-    end
+   
 end
 
 TitleScreen.draw =  function()
@@ -65,23 +82,36 @@ TitleScreen.draw =  function()
     end
 end
 
+
 --RunState functions
-RunState.load =  function()
+
+local PickRandomGame = function(Number)
+    local Number = love.math.random(#MiniGameTable)
+    return Number
 end
 
-RunState.update =  function()
+RunState.load = function()
+    --IN 20 min turn off food/
+    Timer = LastTimer
+    for minigame_index, minigame in ipairs(MiniGameTable) do
+        ActiveState = minigame[PickRandomGame]
+    end
+
+    if ActiveState.enter then
+        ActiveState:enter()
+    end
 end
 
-RunState.draw =  function()
+RunState.update = function()
+    
+end
+
+RunState.draw = function()
 
 end
 
 
 --Change active State. 
-
-ChangeState =  function()
-
-end 
 
 
 
@@ -90,7 +120,45 @@ if ActiveState == nil then
     return
 end
 
---Load, Update, Draw, State
+
+
+local ChangeState = function(dt)
+
+    for ui_index, ui in ipairs(TitleScreenUItable)  do
+        if ActiveState == TitleScreen then
+            if CheckCollision(ui.x, ui.y, ui.width, ui.height, PlayerMouse.x, PlayerMouse.y, PlayerMouse.width, PlayerMouse.height) and love.mouse.isDown(1) then
+
+                if ui.use then
+                    ui:use()
+                end
+            end
+        end
+    end
+
+
+    if ActiveState.IsGame then
+        Timer = Timer - SubtractTimer * dt
+
+        if Timer < 1 then
+            if ActiveState.won then
+
+                ActiveState:exit()
+                RunState:load()
+
+         
+            elseif ActiveState.lose and Health > DeathNumber then
+                ActiveState:exit()
+                Health = Health - SubtractHealth
+                RunState.load()
+                
+            elseif ActiveState.lose and Health == DeathNumber then
+                ActiveState:exit()
+                ActiveState = TitleScreen 
+            end
+        end
+    end
+
+end
 
 local StateLoad = function()
     ActiveState:load()
@@ -104,9 +172,13 @@ local StateDraw = function()
     ActiveState:draw()
 end
 
-table.insert(functionTable, ChangeState)
-table.insert(functionTable, StateLoad)
-table.insert(functionTable, StateUpdate)
-table.insert(functionTable, StateDraw)
+local  functionTable = {
+    ChangeState = ChangeState,
+    StateLoad = StateLoad,
+    StateUpdate = StateUpdate,
+    StateDraw = StateDraw
+}
+
 
 return functionTable
+
