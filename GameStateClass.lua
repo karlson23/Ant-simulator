@@ -1,22 +1,26 @@
-local GameState = {}
-GameState.__index = GameState
+local State = {}
+State.__index = State
 
-GameState.new = function(self,name)
+State.new = function(self,name)
 	local self = {}
 	self.Run = false
 
 	self.name = name
-	return setmetatable(self,GameState)
+	return setmetatable(self,State)
 end
 
 
-GameState.load = function(self)
+State.enter = function(self) --anything on entering the state
 end
 
-GameState.update = function(self)
+State.load = function(self)
+	--Load things here that need to be run before updating.
 end
 
-GameState.draw = function(self)
+State.update = function(self)
 end
 
-return GameState
+State.draw = function(self)
+end
+
+return State

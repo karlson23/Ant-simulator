@@ -21,7 +21,7 @@ Interface.new = function(self, stat)
 	return setmetatable(self, Interface)
 end
 	
-Interface.use = function(self)
+Interface.use = function(self, arg)
 	
 end
 

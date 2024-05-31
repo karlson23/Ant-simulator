@@ -1,7 +1,7 @@
 local minigame = {}
 minigame.__index = minigame
 
-minigame.new = function(self, name)
+minigame.new = function(self, stat)
 	local self = {}
 	self.x = stat.x
 	self.y = stat.y 
